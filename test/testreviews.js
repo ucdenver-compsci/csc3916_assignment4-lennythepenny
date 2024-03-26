@@ -6,6 +6,7 @@ let server = require('../server');
 let User = require('../Users');
 let Movie = require('../Movies');
 let Review = require('../Reviews');
+
 chai.should();
 
 chai.use(chaiHttp);

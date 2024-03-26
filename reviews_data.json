@@ -1,0 +1,33 @@
+[
+    {
+      "movieId": "65e0e913347fff27dc8765d7",  
+      "username": "veryfirstuser",
+      "review": "Awesome action-packed movie! The characters were engaging, and the fight scenes were thrilling.",
+      "rating": 5
+    },
+    {
+      "movieId": "65e0e913347fff27dc8765d9",  
+      "username": "movielover44",
+      "review": "An intense and visually stunning film. Uma Thurman's performance was outstanding.",
+      "rating": 4.5
+    },
+    {
+      "movieId": "65e0e913347fff27dc8765dc",  
+      "username": "spoilerman",
+      "review": "Keanu Reeves shines in this action-packed thriller. The action sequences are top-notch.",
+      "rating": 4.7
+    },
+    {
+      "movieId": "65e0e913347fff27dc8765d6",  
+      "username": "xxLolKiddoxx",
+      "review": "A gripping thriller with unexpected twists. The performances were captivating.",
+      "rating": 4.2
+    },
+    {
+      "movieId": "65e0e913347fff27dc8765d8",  
+      "username": "testuser",
+      "review": "A mind-bending mystery with stellar performances. DiCaprio and Ruffalo were phenomenal.",
+      "rating": 4.8
+    }
+  ]
+  
