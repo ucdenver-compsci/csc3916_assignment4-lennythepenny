@@ -201,20 +201,40 @@ router.delete('/movies/:title', authJwtController.isAuthenticated, (req, res) =>
         .catch(error => res.status(500).json({ error: 'An error occurred while deleting the movie' }));
 });
 //REVIEW ROUTES
+// // POST route to add a review
+// router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
+//     const { movieId, username, review, rating } = req.body;
+
+//     // Create a new review and save it to the database
+//     const newReview = new Review({ movieId, username, review, rating });
+//     newReview.save()
+//         .then(savedReview => {
+//             res.status(200).json({ message: 'Review created!', review: savedReview });
+//             trackDimension('Feedback', 'Rating', 'Feedback for Movie', '3', 'Guardian\'s of the Galaxy 2', '1')
+//             .then(function (response) {
+//                 console.log(response.body);
+//                 res.status(200);
+//             })
+//         })
+//         .catch(error => {
+//             res.status(500).json({ error: 'An error occurred while saving the review' });
+//         });
+// });
 // POST route to add a review
 router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
     const { movieId, username, review, rating } = req.body;
+
+    // Check if movieId, username, review, and rating are present in the request body
+    if (!movieId || !username || !review || !rating) {
+        return res.status(400).json({ error: 'movieId, username, review, and rating are required fields' });
+    }
 
     // Create a new review and save it to the database
     const newReview = new Review({ movieId, username, review, rating });
     newReview.save()
         .then(savedReview => {
             res.status(200).json({ message: 'Review created!', review: savedReview });
-            trackDimension('Feedback', 'Rating', 'Feedback for Movie', '3', 'Guardian\'s of the Galaxy 2', '1')
-            .then(function (response) {
-                console.log(response.body);
-                res.status(200);
-            })
+            // Optionally, track analytics here if needed
         })
         .catch(error => {
             res.status(500).json({ error: 'An error occurred while saving the review' });
