@@ -23,6 +23,8 @@ is the name of the movie and the actual rating that was passed in
 var express = require('express');
 var bodyParser = require('body-parser');
 var passport = require('passport');
+const crypto = require("crypto");
+const rp = require('request-promise');
 var authJwtController = require('./auth_jwt');
 var jwt = require('jsonwebtoken');
 var cors = require('cors');
@@ -49,6 +51,30 @@ const port = process.env.PORT || 8080;
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
+// Function to track custom analytics dimensions and metrics
+function trackDimension(category, action, label, value, dimension, metric) {
+    // Construct options for Google Analytics Measurement Protocol
+    const options = {
+        method: 'GET',
+        url: 'https://www.google-analytics.com/collect',
+        qs: {
+            v: '1', // API Version
+            tid: process.env.GA_KEY, // Google Analytics Tracking ID
+            cid: crypto.randomBytes(16).toString("hex"), // Random Client Identifier
+            t: 'event', // Event hit type
+            ec: category, // Event category
+            ea: action, // Event action
+            el: label, // Event label
+            ev: value, // Event value
+            cd1: dimension, // Custom Dimension
+            cm1: metric // Custom Metric
+        },
+        headers: { 'Cache-Control': 'no-cache' }
+    };
+
+    // Send request to Google Analytics
+    return rp(options);
+}
 
 //signup/ route
 router.post('/signup', function(req, res) {
@@ -167,6 +193,7 @@ router.delete('/movies/:title', authJwtController.isAuthenticated, (req, res) =>
 // POST route to add a review
 router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
     const { movieId, username, review, rating } = req.body;
+
     // Create a new review and save it to the database
     const newReview = new Review({ movieId, username, review, rating });
     newReview.save()
@@ -174,13 +201,23 @@ router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
             res.status(200).json({ message: 'Review created!', review: savedReview });
         })
         .catch(error => {
-            console.error('Error saving review:', error);
             res.status(500).json({ error: 'An error occurred while saving the review' });
         });
+        trackDimension(genre, action, 'API Request for Movie Review', '1', movieName, '1')
+        .then(response => {
+            console.log(response.body);
+            res.status(200).send('Movie review submitted.');
+        })
+        .catch(error => {
+            console.error('Error tracking movie review:', error);
+            res.status(500).send('Error submitting movie review.');
+        });
 });
-
 // GET route to retrieve reviews
 router.get('/reviews', authJwtController.isAuthenticated, (req, res) => {
+    if (!req.query.movieId) {
+        return res.status(400).json({ error: 'movieId is required' });
+    }
     Review.find()
         .then(reviews => {
             res.status(200).json(reviews);
@@ -190,21 +227,35 @@ router.get('/reviews', authJwtController.isAuthenticated, (req, res) => {
             res.status(500).json({ error: 'An error occurred while fetching reviews' });
         });
 });
+// Route handler for retrieving reviews with movie information
+router.get('/reviews', authJwtController.isAuthenticated, (req, res) => {
+    const includeReviews = req.query.reviews === 'true';
 
-// DELETE route to delete a review (optional)
-router.delete('/reviews/:id', authJwtController.isAuthenticated, (req, res) => {
-    const { id } = req.params;
-    Review.findByIdAndDelete(id)
-        .then(deletedReview => {
-            if (!deletedReview) {
-                return res.status(404).json({ error: 'Review not found' });
+    if (includeReviews) {
+        Review.aggregate([
+            {
+                $lookup: {
+                    from: 'movies', // name of the movies collection
+                    localField: 'movieId',
+                    foreignField: '_id',
+                    as: 'movieDetails' // output array where the joined movie details will be placed
+                }
+            },
+            {
+                $unwind: '$movieDetails' // unwind the movie array
             }
-            res.status(200).json({ message: 'Review deleted successfully' });
-        })
-        .catch(error => {
-            console.error('Error deleting review:', error);
-            res.status(500).json({ error: 'An error occurred while deleting the review' });
+        ]).exec((err, aggregatedData) => {
+            if (err) {
+                console.error('Error aggregating reviews:', err);
+                res.status(500).json({ error: 'An error occurred while aggregating reviews' });
+            } else {
+                res.status(200).json(aggregatedData);
+            }
         });
+    } else {
+        // Handle case when reviews parameter is not true
+        res.status(400).json({ error: 'Invalid request. Set reviews=true to include reviews.' });
+    }
 });
 
 app.use('/', router);
