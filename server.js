@@ -18,6 +18,8 @@ db.orders.aggregate([
 FOR THE POST REVIEWS ROUTE /reviews all you have to do is call the trackDimension only think you will change
 is the name of the movie and the actual rating that was passed in
 
+npm install request-promise
+
 */
 //imports
 var express = require('express');
@@ -208,15 +210,15 @@ router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
     newReview.save()
         .then(savedReview => {
             res.status(200).json({ message: 'Review created!', review: savedReview });
+            trackDimension('Feedback', 'Rating', 'Feedback for Movie', '3', 'Guardian\'s of the Galaxy 2', '1')
+            .then(function (response) {
+                console.log(response.body);
+                res.status(200);
+            })
         })
         .catch(error => {
             res.status(500).json({ error: 'An error occurred while saving the review' });
         });
-        trackDimension('Feedback', 'Rating', 'Feedback for Movie', '3', 'Guardian\'s of the Galaxy 2', '1')
-        .then(function (response) {
-            console.log(response.body);
-            res.status(200).send('Event tracked.').end();
-        })
 });
 // GET route to retrieve reviews
 router.get('/reviews', authJwtController.isAuthenticated, (req, res) => {
