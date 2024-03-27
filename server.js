@@ -222,9 +222,6 @@ router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
 });
 // GET route to retrieve reviews
 router.get('/reviews', authJwtController.isAuthenticated, (req, res) => {
-    if (!req.query.movieId) {
-        return res.status(400).json({ error: 'movieId is required' });
-    }
     Review.find()
         .then(reviews => {
             res.status(200).json(reviews);
