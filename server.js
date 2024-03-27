@@ -52,30 +52,39 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
 // Function to track custom analytics dimensions and metrics
+const GA_TRACKING_ID = process.env.GA_KEY;
 function trackDimension(category, action, label, value, dimension, metric) {
-    // Construct options for Google Analytics Measurement Protocol
-    const options = {
-        method: 'GET',
-        url: 'https://www.google-analytics.com/collect',
-        qs: {
-            v: '1', // API Version
-            tid: process.env.GA_KEY, // Google Analytics Tracking ID
-            cid: crypto.randomBytes(16).toString("hex"), // Random Client Identifier
-            t: 'event', // Event hit type
-            ec: category, // Event category
-            ea: action, // Event action
-            el: label, // Event label
-            ev: value, // Event value
-            cd1: dimension, // Custom Dimension
-            cm1: metric // Custom Metric
-        },
-        headers: { 'Cache-Control': 'no-cache' }
-    };
 
-    // Send request to Google Analytics
+    var options = { method: 'GET',
+        url: 'https://www.google-analytics.com/collect',
+        qs:
+            {   // API Version.
+                v: '1',
+                // Tracking ID / Property ID.
+                tid: GA_TRACKING_ID,
+                // Random Client Identifier. Ideally, this should be a UUID that
+                // is associated with particular user, device, or browser instance.
+                cid: crypto.randomBytes(16).toString("hex"),
+                // Event hit type.
+                t: 'event',
+                // Event category.
+                ec: category,
+                // Event action.
+                ea: action,
+                // Event label.
+                el: label,
+                // Event value.
+                ev: value,
+                // Custom Dimension
+                cd1: dimension,
+                // Custom Metric
+                cm1: metric
+            },
+        headers:
+            {  'Cache-Control': 'no-cache' } };
+
     return rp(options);
 }
-
 //signup/ route
 router.post('/signup', function(req, res) {
     if (!req.body.username || !req.body.password) {
@@ -203,15 +212,11 @@ router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
         .catch(error => {
             res.status(500).json({ error: 'An error occurred while saving the review' });
         });
-        trackDimension(genre, action, 'API Request for Movie Review', '1', movieName, '1')
-        .then(response => {
+        trackDimension('Feedback', 'Rating', 'Feedback for Movie', '3', 'Guardian\'s of the Galaxy 2', '1')
+        .then(function (response) {
             console.log(response.body);
-            res.status(200).send('Movie review submitted.');
+            res.status(200).send('Event tracked.').end();
         })
-        .catch(error => {
-            console.error('Error tracking movie review:', error);
-            res.status(500).send('Error submitting movie review.');
-        });
 });
 // GET route to retrieve reviews
 router.get('/reviews', authJwtController.isAuthenticated, (req, res) => {
