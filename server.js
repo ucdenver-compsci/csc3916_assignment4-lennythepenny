@@ -182,10 +182,14 @@ router.get('/movies/:id', authJwtController.isAuthenticated, (req, res) => {
             },
             {
               $lookup: {
+                // from: "movies", 
+                // localField: "_id", 
+                // foreignField: "movieId", 
+                // as: "movie_reviews" 
                 from: "reviews", 
-                localField: "_id", 
-                foreignField: "movieId", 
-                as: "movie_reviews" 
+                localField: "_id",
+                foreignField: "movieId",
+                as: "movie_reviews"
               }
             }
           ]).exec(function(err, result) {
