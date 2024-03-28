@@ -234,7 +234,11 @@ router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
     newReview.save()
         .then(savedReview => {
             res.status(200).json({ message: 'Review created!', review: savedReview });
-            // Optionally, track analytics here if needed
+            trackDimension('Feedback', 'Rating', 'Feedback for Movie', '3', 'Guardian\'s of the Galaxy 2', '1')
+            .then(function (response) {
+                console.log(response.body);
+                res.status(200);
+            })
         })
         .catch(error => {
             res.status(500).json({ error: 'An error occurred while saving the review' });
