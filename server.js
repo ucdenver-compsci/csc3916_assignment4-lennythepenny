@@ -171,42 +171,41 @@ router.post('/movies', authJwtController.isAuthenticated, (req, res) => {
         });
 });
 
-// GET route for fetching a movie by ID with reviews aggregation
 router.get('/movies/:id', authJwtController.isAuthenticated, (req, res) => {
     const movieId = req.params.id;
     const includeReviews = req.query.reviews === 'true';
 
     if (includeReviews) {
-        // Aggregation to fetch movie along with reviews
         Movie.aggregate([
             {
-                $match: { _id: mongoose.Types.ObjectId(movieId) }
+              $match: { _id: mongoose.Types.ObjectId(movieId) } 
             },
             {
-                $lookup: {
-                    from: "movies",
-                    localField: "_id",
-                    foreignField: "movieId",
-                    as: "movie_reviews"
-                }                
+              $lookup: {
+                from: "reviews", 
+                localField: "_id", 
+                foreignField: "movieId", 
+                as: "movie_reviews" 
+              }
             }
-        ]).exec((err, result) => {
+          ]).exec(function(err, result) {
             if (err) {
-                console.error('Error fetching movie with reviews:', err);
-                res.status(500).json({ error: 'An error occurred while fetching movie with reviews' });
+              console.error('Error fetching movie with reviews:', err);
+              // Handle error appropriately, such as sending an error response
+              res.status(500).json({ error: 'An error occurred while fetching movie with reviews' });
             } else {
-                res.status(200).json(result);
+              console.log(result);
+              // Process the result as needed
+              res.status(200).json(result);
             }
-        });
+          });          
     } else {
-        // Fetch movie without reviews
         Movie.findById(movieId)
             .then(movie => {
                 if (!movie) {
                     console.log('Movie not found:', movieId);
                     return res.status(404).json({ error: 'Movie not found' });
                 }
-                console.log('Movie found:', movie);
                 res.status(200).json(movie);
             })
             .catch(error => {
