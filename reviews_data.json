@@ -1,45 +1,68 @@
-[{
-  "_id": {
-    "$oid": "6604fc7936f8f17843d390ad"
+[
+  {
+    "movieId": "6604fc7936f8f17843d390ad",
+    "username": "veryfirstuser",
+    "review": "Awesome action-packed movie! The characters were engaging, and the fight scenes were thrilling.",
+    "rating": 5
   },
-  "movieId": "1",
-  "username": "veryfirstuser",
-  "review": "Awesome action-packed movie! The characters were engaging, and the fight scenes were thrilling.",
-  "rating": 5
-},
-{
-  "_id": {
-    "$oid": "6604fc7936f8f17843d390ae"
+  {
+    "movieId": "6604fc7936f8f17843d390ae",
+    "username": "movielover44",
+    "review": "An intense and visually stunning film. Uma Thurman's performance was outstanding.",
+    "rating": 4.5
   },
-  "movieId": "2",
-  "username": "movielover44",
-  "review": "An intense and visually stunning film. Uma Thurman's performance was outstanding.",
-  "rating": 4.5
-},
-{
-  "_id": {
-    "$oid": "6604fc7936f8f17843d390af"
+  {
+    "movieId": "6604fc7936f8f17843d390af",
+    "username": "spoilerman",
+    "review": "Keanu Reeves shines in this action-packed thriller. The action sequences are top-notch.",
+    "rating": 4.7
   },
-  "movieId": "3",
-  "username": "spoilerman",
-  "review": "Keanu Reeves shines in this action-packed thriller. The action sequences are top-notch.",
-  "rating": 4.7
-},
-{
-  "_id": {
-    "$oid": "6604fc7936f8f17843d390b0"
+  {
+    "movieId": "6604fc7936f8f17843d390b0",
+    "username": "xxLolKiddoxx",
+    "review": "A gripping thriller with unexpected twists. The performances were captivating.",
+    "rating": 4.2
   },
-  "movieId": "4",
-  "username": "xxLolKiddoxx",
-  "review": "A gripping thriller with unexpected twists. The performances were captivating.",
-  "rating": 4.2
-},
-{
-  "_id": {
-    "$oid": "6604fc7936f8f17843d390b1"
+  {
+    "movieId": "6604fc7936f8f17843d390b1",
+    "username": "trackersynchro",
+    "review": "A mind-bending mystery with stellar performances. DiCaprio and Ruffalo were phenomenal.",
+    "rating": 4.8
   },
-  "movieId": "5",
-  "username": "testuser",
-  "review": "A mind-bending mystery with stellar performances. DiCaprio and Ruffalo were phenomenal.",
-  "rating": 4.8
-}]
+  {
+    "movieId": "6604fc7936f8f17843d390b2",
+    "username": "cybetica68",
+    "review": "A thrilling adventure on the high seas! Johnny Depp's portrayal of Jack Sparrow is iconic.",
+    "rating": 4.6
+  },
+  {
+    "movieId": "6604fc7936f8f17843d390b3",
+    "username": "KaptainCorny",
+    "review": "Epic battles and memorable characters make this a must-watch for any Star Wars fan.",
+    "rating": 4.9
+  },
+  {
+    "movieId": "6604fc7936f8f17843d390b4",
+    "username": "comedyfan",
+    "review": "A hilarious journey through time with Bill and Ted! Excellent adventure indeed!",
+    "rating": 4.7
+  },
+  {
+    "movieId": "6604fc7936f8f17843d390b5",
+    "username": "VitalGeneral4546",
+    "review": "Wayne's World is a cult classic! Mike Myers and Dana Carvey's chemistry is undeniable.",
+    "rating": 4.5
+  },
+  {
+    "movieId": "6604fc7936f8f17843d390b6",
+    "username": "McMovies",
+    "review": "Midsommar is a haunting masterpiece. Florence Pugh delivers a captivating performance.",
+    "rating": 4.8
+  },
+  {
+    "movieId": "6604fc7936f8f17843d390b7",
+    "username": "sidekickflick",
+    "review": "A visually stunning adaptation of Lewis Carroll's classic tale. Johnny Depp steals the show as the Mad Hatter.",
+    "rating": 4.6
+  }
+]

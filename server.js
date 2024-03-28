@@ -29,12 +29,10 @@ const crypto = require("crypto");
 const rp = require('request-promise');
 var authJwtController = require('./auth_jwt');
 var jwt = require('jsonwebtoken');
-// var cors = require('cors');
 var User = require('./Users');
 var Movie = require('./Movies');
 var Review = require('./Reviews');
 const mongoose = require('mongoose'); 
-// const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
 var app = express();
@@ -55,6 +53,7 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .catch(err => console.log(err));
 // Function to track custom analytics dimensions and metrics
 const GA_TRACKING_ID = process.env.GA_KEY;
+
 function trackDimension(category, action, label, value, dimension, metric) {
 
     var options = { method: 'GET',
@@ -87,6 +86,8 @@ function trackDimension(category, action, label, value, dimension, metric) {
 
     return rp(options);
 }
+//ROUTES
+
 //signup/ route
 router.post('/signup', function(req, res) {
     if (!req.body.username || !req.body.password) {
@@ -137,7 +138,9 @@ router.post('/signin', function (req, res) {
         })
     })
 });
+
 //MOVIE ROUTES
+
 //get /movies route
 router.get('/movies', authJwtController.isAuthenticated, (req, res) => {
     //find all the movies in the database
@@ -167,53 +170,34 @@ router.post('/movies', authJwtController.isAuthenticated, (req, res) => {
             res.status(200).json(savedMovie);
         });
 });
-// // GET route to retrieve a movie by ID
-// router.get('/movies/:id', authJwtController.isAuthenticated, (req, res) => {
-//     const movieId = req.params.id;
 
-//     console.log('Fetching movie with ID:', movieId);
-
-//     // Find the movie by ID in the database
-//     Movie.findById(movieId)
-//         .then(movie => {
-//             if (!movie) {
-//                 console.log('Movie not found:', movieId);
-//                 return res.status(404).json({ error: 'Movie not found' });
-//             }
-            
-//             console.log('Movie found:', movie);
-
-//             res.status(200).json(movie);
-//         })
-//         .catch(error => {
-//             console.error('Error fetching movie:', error);
-//             res.status(500).json({ error: 'An error occurred while fetching the movie' });
-//         });
-// });
-// GET route to retrieve a movie by ID with reviews
+// GET route for fetching a movie by ID with reviews aggregation
 router.get('/movies/:id', authJwtController.isAuthenticated, (req, res) => {
     const movieId = req.params.id;
     const includeReviews = req.query.reviews === 'true';
 
-    console.log('Fetching movie with ID:', movieId);
-
     if (includeReviews) {
-        // Fetch movie along with reviews
-        Movie.findById(movieId)
-            .populate('reviews')
-            .exec((err, movie) => {
-                if (err) {
-                    console.error('Error fetching movie with reviews:', err);
-                    res.status(500).json({ error: 'An error occurred while fetching the movie with reviews' });
-                } else {
-                    if (!movie) {
-                        console.log('Movie not found:', movieId);
-                        return res.status(404).json({ error: 'Movie not found' });
-                    }
-                    console.log('Movie found with reviews:', movie);
-                    res.status(200).json(movie);
-                }
-            });
+        // Aggregation to fetch movie along with reviews
+        Movie.aggregate([
+            {
+                $match: { _id: mongoose.Types.ObjectId(movieId) }
+            },
+            {
+                $lookup: {
+                    from: "movies",
+                    localField: "_id",
+                    foreignField: "movieId",
+                    as: "movie_reviews"
+                }                
+            }
+        ]).exec((err, result) => {
+            if (err) {
+                console.error('Error fetching movie with reviews:', err);
+                res.status(500).json({ error: 'An error occurred while fetching movie with reviews' });
+            } else {
+                res.status(200).json(result);
+            }
+        });
     } else {
         // Fetch movie without reviews
         Movie.findById(movieId)
@@ -231,7 +215,6 @@ router.get('/movies/:id', authJwtController.isAuthenticated, (req, res) => {
             });
     }
 });
-
 
 //put /movies/:title route
 router.put('/movies/:title', authJwtController.isAuthenticated, (req, res) => {
@@ -265,8 +248,10 @@ router.delete('/movies/:title', authJwtController.isAuthenticated, (req, res) =>
         })
         .catch(error => res.status(500).json({ error: 'An error occurred while deleting the movie' }));
 });
+
 //REVIEW ROUTES
-// POST route to add a review
+
+//post route to add a review
 router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
     const { movieId, username, review, rating } = req.body;
 
@@ -284,7 +269,8 @@ router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
             res.status(500).json({ error: 'An error occurred while saving the review' });
         });
 });
-// Route handler for retrieving reviews with optional movie information
+
+//get route to get a review
 router.get('/reviews', authJwtController.isAuthenticated, (req, res) => {
     const includeReviews = req.query.reviews === 'true';
 
