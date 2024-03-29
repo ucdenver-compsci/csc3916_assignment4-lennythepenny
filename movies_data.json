@@ -189,21 +189,21 @@
     ]
   },
   {
-    "title": "Alice in Wonderland",
-    "releaseDate": "2010-01-01T00:00:00.000Z",
-    "genre": "Fantasy",
-    "actors": [
-      {
-        "actorName": "Mia Wasikowska",
-        "characterName": "Alice Kingsleigh"
-      },
-      {
-        "actorName": "Johnny Depp",
-        "characterName": "Mad Hatter"
-      },
-      {
-        "actorName": "Helena Bonham Carter",
-        "characterName": "Red Queen"
-      }
-    ]
-  }]
+      "title": "Alice in Wonderland",
+      "releaseDate": "2010-01-01T00:00:00.000Z",
+      "genre": "Fantasy",
+      "actors": [
+        {
+          "actorName": "Mia Wasikowska",
+          "characterName": "Alice Kingsleigh"
+        },
+        {
+          "actorName": "Johnny Depp",
+          "characterName": "Mad Hatter"
+        },
+        {
+          "actorName": "Helena Bonham Carter",
+          "characterName": "Red Queen"
+        }
+      ]
+    }]
