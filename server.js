@@ -3,24 +3,7 @@ CSC3916 HW4
 File: Server.js
 Description: Web API scaffolding for Movie API
  */
-/*
-db.orders.aggregate([
-    $lookup:
-    {
-        from: "movie_table"
-        localField: "id in movie table"
-        foreignField: "movie id in reviews table"
-        as: "movie_reviews"
-    }
-])
-*/
-/*
-FOR THE POST REVIEWS ROUTE /reviews all you have to do is call the trackDimension only think you will change
-is the name of the movie and the actual rating that was passed in
 
-npm install request-promise
-
-*/
 //imports
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -51,10 +34,10 @@ const port = process.env.PORT || 8080;
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
-// Function to track custom analytics dimensions and metrics
+//Google tracking ID for analytics
 const GA_TRACKING_ID = process.env.GA_KEY;
 
-
+//Function to track Google analytics
 function trackDimension(category, action, label, value, dimension, metric) {
 
     var options = { method: 'GET',
@@ -87,8 +70,8 @@ function trackDimension(category, action, label, value, dimension, metric) {
 
     return rp(options);
 }
-//ROUTES
 
+//ROUTES
 //signup/ route
 router.post('/signup', function(req, res) {
     if (!req.body.username || !req.body.password) {
@@ -141,7 +124,6 @@ router.post('/signin', function (req, res) {
 });
 
 //MOVIE ROUTES
-
 //get /movies route
 router.get('/movies', authJwtController.isAuthenticated, (req, res) => {
     //find all the movies in the database
@@ -172,6 +154,7 @@ router.post('/movies', authJwtController.isAuthenticated, (req, res) => {
         });
 });
 
+//get /movies with specific id route and create array for reviews
 router.get('/movies/:id', authJwtController.isAuthenticated, (req, res) => {
     const movieId = req.params.id;
     const includeReviews = req.query.reviews === 'true';
@@ -246,8 +229,7 @@ router.delete('/movies/:title', authJwtController.isAuthenticated, (req, res) =>
 });
 
 //REVIEW ROUTES
-
-// //post route to add a review
+//post route to add a review
 router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
     const { movieId, username, review, rating } = req.body;
     const newReview = new Review({ movieId, username, review, rating });
@@ -266,13 +248,12 @@ router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
 
 //get route to get a review
 router.get('/reviews', authJwtController.isAuthenticated, (req, res) => {
-    //ADDED THESE
     const movieId = mongoose.Types.ObjectId(req.query.id);
     const includeReviews = req.query.reviews === 'true';
     console.log('Movie ID:', movieId);
 
     if (includeReviews) {
-        // Fetch reviews along with movie details
+        //getting reviews and movie details
         Review.aggregate([
             {  
                 $match: { _id: movieId },
@@ -282,9 +263,6 @@ router.get('/reviews', authJwtController.isAuthenticated, (req, res) => {
                     foreignField: '_id',
                     as: 'movieDetails' 
                 }
-            },
-            {
-                $unwind: '$movieDetails' // unwind the movie array
             }
         ]).exec((err, aggregatedData) => {
             if (err) {
