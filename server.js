@@ -54,6 +54,7 @@ mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
 // Function to track custom analytics dimensions and metrics
 const GA_TRACKING_ID = process.env.GA_KEY;
 
+
 function trackDimension(category, action, label, value, dimension, metric) {
 
     var options = { method: 'GET',
@@ -179,39 +180,34 @@ router.get('/movies/:id', authJwtController.isAuthenticated, (req, res) => {
     if (includeReviews) {
         Movie.aggregate([
             {
-              $match: { _id: mongoose.Types.ObjectId(movieId) } 
+                $match: { _id: mongoose.Types.ObjectId(movieId) }
             },
             {
-              $lookup: {
-                from: "reviews", 
-                localField: "_id",
-                foreignField: "movieId",
-                as: "movie_reviews"
-              }
+                $lookup: {
+                    from: "reviews",
+                    localField: "_id",
+                    foreignField: "movieId",
+                    as: "movie_reviews"
+                }
             }
-          ]).exec(function(err, result) {
+        ]).exec(function (err, result) {
             if (err) {
-              console.error('Error fetching movie with reviews:', err);
-              // Handle error appropriately, such as sending an error response
-              res.status(500).json({ error: 'An error occurred while fetching movie with reviews' });
+                return res.status(404).json({ error: 'Movie not found' });
             } else {
-              console.log(result);
-              // Process the result as needed
-              res.status(200).json(result);
+                res.status(200).json(result);
             }
-          });          
+        });
     } else {
         Movie.findById(movieId)
             .then(movie => {
                 if (!movie) {
-                    console.log('Movie not found:', movieId);
                     return res.status(404).json({ error: 'Movie not found' });
                 }
                 res.status(200).json(movie);
             })
             .catch(error => {
                 console.error('Error fetching movie:', error);
-                res.status(500).json({ error: 'An error occurred while fetching the movie' });
+                res.status(404).json({ error: 'Movie not found' });
             });
     }
 });
@@ -251,11 +247,9 @@ router.delete('/movies/:title', authJwtController.isAuthenticated, (req, res) =>
 
 //REVIEW ROUTES
 
-//post route to add a review
+// //post route to add a review
 router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
     const { movieId, username, review, rating } = req.body;
-
-    // Create a new review and save it to the database
     const newReview = new Review({ movieId, username, review, rating });
     newReview.save()
         .then(savedReview => {
@@ -272,17 +266,21 @@ router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
 
 //get route to get a review
 router.get('/reviews', authJwtController.isAuthenticated, (req, res) => {
+    //ADDED THESE
+    const movieId = mongoose.Types.ObjectId(req.query.id);
     const includeReviews = req.query.reviews === 'true';
+    console.log('Movie ID:', movieId);
 
     if (includeReviews) {
         // Fetch reviews along with movie details
         Review.aggregate([
-            {
+            {  
+                $match: { _id: movieId },
                 $lookup: {
-                    from: 'movies', // name of the movies collection
+                    from: 'movies', 
                     localField: 'movieId',
                     foreignField: '_id',
-                    as: 'movieDetails' // output array where the joined movie details will be placed
+                    as: 'movieDetails' 
                 }
             },
             {
