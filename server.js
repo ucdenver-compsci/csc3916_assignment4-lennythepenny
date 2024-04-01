@@ -34,10 +34,10 @@ const port = process.env.PORT || 8080;
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
-
-// Function to track custom analytics dimensions and metrics
+//Google tracking ID for analytics
 const GA_TRACKING_ID = process.env.GA_KEY;
 
+//Function to track Google analytics
 function trackDimension(category, action, label, value, dimension, metric) {
 
     var options = { method: 'GET',
@@ -70,8 +70,8 @@ function trackDimension(category, action, label, value, dimension, metric) {
 
     return rp(options);
 }
-//ROUTES
 
+//ROUTES
 //signup/ route
 router.post('/signup', function(req, res) {
     if (!req.body.username || !req.body.password) {
@@ -124,7 +124,6 @@ router.post('/signin', function (req, res) {
 });
 
 //MOVIE ROUTES
-
 //get /movies route
 router.get('/movies', authJwtController.isAuthenticated, (req, res) => {
     //find all the movies in the database
@@ -155,18 +154,22 @@ router.post('/movies', authJwtController.isAuthenticated, (req, res) => {
         });
 });
 
-//get movies by their id
+//get /movies with specific id route and create array for reviews
 router.get('/movies/:id', authJwtController.isAuthenticated, (req, res) => {
     const movieId = req.params.id;
 
     //checking if query in URL has ?reviews=true
     const includeReviews = req.query.reviews === 'true';
+    console.log('Movie ID:', movieId); // Add this line for debugging
 
     //reviews are requested
     if (includeReviews) {
         //MongoDB aggregation to create movie + it's reviews array
         Movie.aggregate([
             { $match: { _id: mongoose.Types.ObjectId(movieId) } },
+            {
+                $match: { _id: mongoose.Types.ObjectId(movieId) }
+            },
             {
                 $lookup: {
                     from: "reviews",
@@ -175,18 +178,25 @@ router.get('/movies/:id', authJwtController.isAuthenticated, (req, res) => {
                     as: "movie_reviews"
                 }
             }
-        //can't find the movie
-        ]).exec((err, result) => {
-            if (err || !result.length) {
-                console.error('Error fetching movie with reviews:', err);
+        ]).exec(function (err, result) {
+            if (err) {
                 return res.status(404).json({ error: 'Movie not found' });
+            } else {
+                res.status(200).json(result);
             }
-            res.status(200).json(result);
         });
-    } 
-    //query is missing
-    else {
-        res.status(400).json({ error: 'Reviews query needed' });
+    } else {
+        Movie.findById(movieId)
+            .then(movie => {
+                if (!movie) {
+                    return res.status(404).json({ error: 'Movie not found' });
+                }
+                res.status(200).json(movie);
+            })
+            .catch(error => {
+                console.error('Error fetching movie:', error);
+                res.status(404).json({ error: 'Movie not found' });
+            });
     }
 });
 
@@ -224,7 +234,6 @@ router.delete('/movies/:title', authJwtController.isAuthenticated, (req, res) =>
 });
 
 //REVIEW ROUTES
-
 //post route to add a review
 router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
     const { movieId, username, review, rating } = req.body;
