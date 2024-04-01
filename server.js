@@ -3,24 +3,7 @@ CSC3916 HW4
 File: Server.js
 Description: Web API scaffolding for Movie API
  */
-/*
-db.orders.aggregate([
-    $lookup:
-    {
-        from: "movie_table"
-        localField: "id in movie table"
-        foreignField: "movie id in reviews table"
-        as: "movie_reviews"
-    }
-])
-*/
-/*
-FOR THE POST REVIEWS ROUTE /reviews all you have to do is call the trackDimension only think you will change
-is the name of the movie and the actual rating that was passed in
 
-npm install request-promise
-
-*/
 //imports
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -51,6 +34,7 @@ const port = process.env.PORT || 8080;
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
+
 // Function to track custom analytics dimensions and metrics
 const GA_TRACKING_ID = process.env.GA_KEY;
 
@@ -171,51 +155,38 @@ router.post('/movies', authJwtController.isAuthenticated, (req, res) => {
         });
 });
 
+//get movies by their id
 router.get('/movies/:id', authJwtController.isAuthenticated, (req, res) => {
     const movieId = req.params.id;
+
+    //checking if query in URL has ?reviews=true
     const includeReviews = req.query.reviews === 'true';
 
+    //reviews are requested
     if (includeReviews) {
+        //MongoDB aggregation to create movie + it's reviews array
         Movie.aggregate([
+            { $match: { _id: mongoose.Types.ObjectId(movieId) } },
             {
-              $match: { _id: mongoose.Types.ObjectId(movieId) } 
-            },
-            {
-              $lookup: {
-                // from: "movies", 
-                // localField: "_id", 
-                // foreignField: "movieId", 
-                // as: "movie_reviews" 
-                from: "reviews", 
-                localField: "_id",
-                foreignField: "movieId",
-                as: "movie_reviews"
-              }
-            }
-          ]).exec(function(err, result) {
-            if (err) {
-              console.error('Error fetching movie with reviews:', err);
-              // Handle error appropriately, such as sending an error response
-              res.status(500).json({ error: 'An error occurred while fetching movie with reviews' });
-            } else {
-              console.log(result);
-              // Process the result as needed
-              res.status(200).json(result);
-            }
-          });          
-    } else {
-        Movie.findById(movieId)
-            .then(movie => {
-                if (!movie) {
-                    console.log('Movie not found:', movieId);
-                    return res.status(404).json({ error: 'Movie not found' });
+                $lookup: {
+                    from: "reviews",
+                    localField: "_id",
+                    foreignField: "movieId",
+                    as: "movie_reviews"
                 }
-                res.status(200).json(movie);
-            })
-            .catch(error => {
-                console.error('Error fetching movie:', error);
-                res.status(500).json({ error: 'An error occurred while fetching the movie' });
-            });
+            }
+        //can't find the movie
+        ]).exec((err, result) => {
+            if (err || !result.length) {
+                console.error('Error fetching movie with reviews:', err);
+                return res.status(404).json({ error: 'Movie not found' });
+            }
+            res.status(200).json(result);
+        });
+    } 
+    //query is missing
+    else {
+        res.status(400).json({ error: 'Reviews query needed' });
     }
 });
 
@@ -258,7 +229,7 @@ router.delete('/movies/:title', authJwtController.isAuthenticated, (req, res) =>
 router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
     const { movieId, username, review, rating } = req.body;
 
-    // Create a new review and save it to the database
+    //create new review and save it to database
     const newReview = new Review({ movieId, username, review, rating });
     newReview.save()
         .then(savedReview => {
@@ -268,39 +239,10 @@ router.post('/reviews', authJwtController.isAuthenticated, (req, res) => {
                 console.log(response.body);
             })
         })
-        .catch(error => {
-            res.status(500).json({ error: 'An error occurred while saving the review' });
-        });
 });
 
 //get route to get a review
 router.get('/reviews', authJwtController.isAuthenticated, (req, res) => {
-    const includeReviews = req.query.reviews === 'true';
-
-    if (includeReviews) {
-        // Fetch reviews along with movie details
-        Review.aggregate([
-            {
-                $lookup: {
-                    from: 'movies', // name of the movies collection
-                    localField: 'movieId',
-                    foreignField: '_id',
-                    as: 'movieDetails' // output array where the joined movie details will be placed
-                }
-            },
-            {
-                $unwind: '$movieDetails' // unwind the movie array
-            }
-        ]).exec((err, aggregatedData) => {
-            if (err) {
-                console.error('Error aggregating reviews:', err);
-                res.status(500).json({ error: 'An error occurred while aggregating reviews' });
-            } else {
-                res.status(200).json(aggregatedData);
-            }
-        });
-    } else {
-        // Fetch all reviews
         Review.find()
             .then(reviews => {
                 res.status(200).json(reviews);
@@ -309,11 +251,10 @@ router.get('/reviews', authJwtController.isAuthenticated, (req, res) => {
                 console.error('Error fetching reviews:', error);
                 res.status(500).json({ error: 'An error occurred while fetching reviews' });
             });
-    }
 });
 
 app.use('/', router);
 app.listen(process.env.PORT || 8080);
-module.exports = app; // for testing only
+module.exports = app; //for testing only
 
 
