@@ -16,6 +16,7 @@ var User = require('./Users');
 var Movie = require('./Movies');
 var Review = require('./Reviews');
 const mongoose = require('mongoose'); 
+const cors = require('cors');
 require('dotenv').config();
 
 var app = express();
@@ -25,6 +26,10 @@ var router = express.Router();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
+// app.use(cors());
+app.use(cors({
+    origin: 'https://csc3916-react-lennythepenny.onrender.com'
+  }));  
 
 //MongoDB connection URI and port
 const uri = process.env.DB;
