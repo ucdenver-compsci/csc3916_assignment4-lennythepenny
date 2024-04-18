@@ -1,6 +1,6 @@
 [{
   "title": "Jujutsu Kaisen 0",
-    "releaseDate": "03/18/2022",
+    "releaseDate": "2022-03-18",
     "genre": "Action",
     "actors": [
       {
@@ -20,7 +20,7 @@
   },
   {
     "title": "Kill Bill: Vol. 1",
-    "releaseDate": "10 10 2003",
+    "releaseDate": "2003-10-10",
     "genre": "Action",
     "actors": [
       {
@@ -40,7 +40,7 @@
   },
   {
     "title": "John Wick",
-    "releaseDate": "10 24 2014",
+    "releaseDate": "2014-10-24",
     "genre": "Action",
     "actors": [
       {
@@ -60,7 +60,7 @@
   },
   {
     "title": "The Menu",
-    "releaseDate": "11 18 2022",
+    "releaseDate": "2022-11-18",
     "genre": "Thriller",
     "actors": [
       {
@@ -80,7 +80,7 @@
   },
   {
     "title": "Shutter Island",
-    "releaseDate": "02 19 2010",
+    "releaseDate": "2010-02-19",
     "genre": "Mystery",
     "actors": [
       {
@@ -100,7 +100,7 @@
   },
   {
     "title": "Pirates of the Caribbean: On Stranger Tides",
-    "releaseDate": "05 7 2011",
+    "releaseDate": "2011-05-07",
     "genre": "Adventure",
     "actors": [
       {
@@ -120,7 +120,7 @@
   },
   {
     "title": "Star Wars: Episode III - Revenge of the Sith",
-    "releaseDate": "05 19 2005",
+    "releaseDate": "2005-05-19",
     "genre": "Science Fiction",
     "actors": [
       {
@@ -140,7 +140,7 @@
   },
   {
     "title": "Bill and Ted's Excellent Adventure",
-    "releaseDate": "02 17 1989",
+    "releaseDate": "1989-02-17",
     "genre": "Comedy",
     "actors": [
       {
@@ -160,7 +160,7 @@
   },
   {
     "title": "Wayne's World",
-    "releaseDate": "02 14 1992",
+    "releaseDate": "1992-02-14",
     "genre": "Comedy",
     "actors": [
       {
@@ -180,7 +180,7 @@
   },
   {
     "title": "Midsommar",
-    "releaseDate": "07 3 2019",
+    "releaseDate": "2019-07-03",
     "genre": "Horror",
     "actors": [
       {
@@ -200,7 +200,7 @@
   },
   {
       "title": "Alice in Wonderland",
-      "releaseDate": "03 5 2010",
+      "releaseDate": "2010-03-05",
       "genre": "Fantasy",
       "actors": [
         {
