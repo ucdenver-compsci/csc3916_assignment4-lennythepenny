@@ -35,45 +35,9 @@ const uri = process.env.DB;
 const port = process.env.PORT || 8080;
 
 //connect to MongoDB database
-mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(uri)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
-//Google tracking ID for analytics
-const GA_TRACKING_ID = process.env.GA_KEY;
-
-//Function to track Google analytics
-function trackDimension(category, action, label, value, dimension, metric) {
-
-    var options = { method: 'GET',
-        url: 'https://www.google-analytics.com/collect',
-        qs:
-            {   // API Version.
-                v: '1',
-                // Tracking ID / Property ID.
-                tid: GA_TRACKING_ID,
-                // Random Client Identifier. Ideally, this should be a UUID that
-                // is associated with particular user, device, or browser instance.
-                cid: crypto.randomBytes(16).toString("hex"),
-                // Event hit type.
-                t: 'event',
-                // Event category.
-                ec: category,
-                // Event action.
-                ea: action,
-                // Event label.
-                el: label,
-                // Event value.
-                ev: value,
-                // Custom Dimension
-                cd1: dimension,
-                // Custom Metric
-                cm1: metric
-            },
-        headers:
-            {  'Cache-Control': 'no-cache' } };
-
-    return rp(options);
-}
 
 //ROUTES
 //signup/ route
@@ -128,28 +92,97 @@ router.post('/signin', function (req, res) {
 });
 
 //MOVIE ROUTES
-//get /movies route
 router.get('/movies', authJwtController.isAuthenticated, (req, res) => {
-    //find all the movies in the database
-    Movie.find({ title: { $exists: true } })
-        .then(movies => {
-            res.status(200).json(movies);
-        })
-        .catch(error => {
-            console.error('Error finding movies:', error);
+    Movie.aggregate([
+        {
+            $lookup: {
+                from: "reviews",
+                localField: "_id",
+                foreignField: "movieId",
+                as: "movie_reviews"
+            }
+        },
+        {
+            $addFields: {
+                avgRating: { $avg: "$movie_reviews.rating" },
+                imageUrl: "$imageUrl" // Include the imageUrl field from the original movie document
+            }
+        },
+        {
+            $sort: { avgRating: -1 } 
+        }
+    ]).exec((err, movies) => {
+        if (err) {
+            console.error('Error finding movies:', err);
             res.status(500).json({ error: 'An error occurred while fetching movies' });
-        });
+        } else {
+            res.status(200).json(movies);
+        }
+    });
 });
 
-// // //post /movies route
+router.get('/movies/:id', authJwtController.isAuthenticated, async (req, res) => {
+    const movieId = req.params.id;
+  
+    const includeReviews = req.query.reviews === 'true';
+  
+    try {
+        if (includeReviews) {
+            const result = await Movie.aggregate([
+                { $match: { _id: mongoose.Types.ObjectId(movieId) } },
+                {
+                    $lookup: {
+                        from: "reviews",
+                        localField: "_id",
+                        foreignField: "movieId",
+                        as: "movie_reviews"
+                    }
+                },
+                {
+                    $addFields: {
+                        avgRating: { $avg: '$movie_reviews.rating' }
+                    }
+                }
+            ]);
+
+            if (!result.length || !result[0].title) {
+                return res.status(404).json({ error: 'Movie not found' });
+            }
+
+            res.status(200).json(result[0]);
+        } else {
+            const movie = await Movie.findById(movieId);
+
+            if (!movie || !movie.title) {
+                return res.status(404).json({ error: 'Movie not found' });
+            }
+
+            const movieWithImageURL = {
+                _id: movie._id,
+                title: movie.title,
+                releaseDate: movie.releaseDate,
+                genre: movie.genre,
+                actors: movie.actors,
+                imageUrl: movie.imageUrl
+            };
+
+            res.status(200).json(movieWithImageURL);
+        }
+    } catch (error) {
+        console.error('Error fetching movie:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// //post /movies route
 // router.post('/movies', authJwtController.isAuthenticated, (req, res) => {
-//     const {movieId, title, releaseDate, genre, actors } = req.body;
+//     const {movieId, title, releaseDate, genre, actors, imageUrl} = req.body;
 //     //check if title in the request body
 //     if (!title) {
 //         return res.status(400).json({ error: 'Title is required' });
 //     }
 //     //create new Movie object and save it to the database
-//     const newMovie = new Movie({ movieId, title, releaseDate, genre, actors });
+//     const newMovie = new Movie({ movieId, title, releaseDate, genre, actors, imageUrl});
 
 //     newMovie.save()
 //         .then(savedMovie => {
@@ -157,73 +190,63 @@ router.get('/movies', authJwtController.isAuthenticated, (req, res) => {
 //             res.status(200).json(savedMovie);
 //         });
 // });
+
 router.post('/movies', authJwtController.isAuthenticated, (req, res) => {
-    console.log('Received POST request to /movies:', req.body); // Log the received request body
-    
-    const {movieId, title, releaseDate, genre, actors, imageUrl } = req.body;
-    console.log('Parsed request body:', {movieId, title, releaseDate, genre, actors, imageUrl}); // Log the parsed request body
-    
-    //check if title in the request body
-    if (!title) {
-        console.error('Title is required:', req.body); // Log error if title is missing
-        return res.status(400).json({ error: 'Title is required' });
+    const { title, releaseDate, genre, actors, imageUrl } = req.body;
+
+    // Check if title and releaseDate are provided in the request body
+    if (!title || !releaseDate) {
+        return res.status(400).json({ error: 'Title and releaseDate are required' });
     }
-    
-    //create new Movie object and save it to the database
-    const newMovie = new Movie({movieId, title, releaseDate, genre, actors, imageUrl});
-    
+
+    // Create a new Movie object and save it to the database
+    const newMovie = new Movie({ title, releaseDate, genre, actors, imageUrl });
+
     newMovie.save()
         .then(savedMovie => {
-            console.log('Saved movie to database:', savedMovie); // Log the saved movie
-            //send the newly saved movie with success response
+            // Send the newly saved movie with success response
             res.status(200).json(savedMovie);
         })
+        .catch(error => {
+            // Handle errors
+            console.error("Error saving movie:", error);
+            res.status(500).json({ error: "Failed to save movie" });
+        });
 });
 
-//get /movies with specific id route and create array for reviews
-router.get('/movies/:id', authJwtController.isAuthenticated, (req, res) => {
+//get route to get movie reviews for specific movie on movie detail page
+router.get('/movies/:id/reviews', authJwtController.isAuthenticated, (req, res) => {
     const movieId = req.params.id;
 
-    //checking if query in URL has ?reviews=true
-    const includeReviews = req.query.reviews === 'true';
-    console.log('Movie ID:', movieId); // Add this line for debugging
-
-    //reviews are requested
-    if (includeReviews) {
-        //MongoDB aggregation to create movie + it's reviews array
-        Movie.aggregate([
-            { $match: { _id: mongoose.Types.ObjectId(movieId) } },
-            {
-                $match: { _id: mongoose.Types.ObjectId(movieId) }
-            },
-            {
-                $lookup: {
-                    from: "reviews",
-                    localField: "_id",
-                    foreignField: "movieId",
-                    as: "movie_reviews"
-                }
-            }
-        ]).exec(function (err, result) {
-            if (err) {
-                return res.status(404).json({ error: 'Movie not found' });
-            } else {
-                res.status(200).json(result);
-            }
+    // Find all reviews with the specified movieId
+    Review.find({ movieId })
+        .then(reviews => {
+            res.status(200).json(reviews);
+        })
+        .catch(error => {
+            console.error('Error fetching reviews:', error);
+            res.status(500).json({ error: 'An error occurred while fetching reviews' });
         });
-    } else {
-        Movie.findById(movieId)
-            .then(movie => {
-                if (!movie) {
-                    return res.status(404).json({ error: 'Movie not found' });
-                }
-                res.status(200).json(movie);
-            })
-            .catch(error => {
-                console.error('Error fetching movie:', error);
-                res.status(404).json({ error: 'Movie not found' });
-            });
-    }
+});
+
+//post route to add a review
+router.post('/movies/:id/reviews', authJwtController.isAuthenticated, (req, res) => {
+    // const movieId = req.params.movieId;
+    const movieId = req.params.id
+    const { rating, review } = req.body;
+    const username = req.user.username;
+
+    // Create a new review object and save it to the database
+    const newReview = new Review({ movieId, username, rating, review });
+
+    newReview.save()
+        .then(savedReview => {
+            res.status(200).json({ message: 'Review created!', review: savedReview });
+        })
+        .catch(error => {
+            console.error('Error creating review:', error);
+            res.status(500).json({ error: 'An error occurred while creating the review' });
+        });
 });
 
 //put /movies/:title route
@@ -258,6 +281,24 @@ router.delete('/movies/:title', authJwtController.isAuthenticated, (req, res) =>
         })
         .catch(error => res.status(500).json({ error: 'An error occurred while deleting the movie' }));
 });
+// //ADDED SEARCH MOVIES
+// router.post('/search', authJwtController, (req, res) => {
+//     const { query } = req.body;
+
+//     Movie.find({
+//         $or: [
+//             { title: { $regex: query, $options: 'i' } },
+//             { actors: { $regex: query, $options: 'i' } }
+//         ]
+//     }).exec((err, movies) => {
+//         if (err) {
+//             console.error('Error searching movies:', err);
+//             res.status(500).json({ error: 'An error occurred while searching movies' });
+//         } else {
+//             res.status(200).json(movies);
+//         }
+//     });
+// });
 
 //REVIEW ROUTES
 //post route to add a review
@@ -291,5 +332,3 @@ router.get('/reviews', authJwtController.isAuthenticated, (req, res) => {
 app.use('/', router);
 app.listen(process.env.PORT || 8080);
 module.exports = app; //for testing only
-
-

@@ -1,6 +1,6 @@
 [{
   "title": "Jujutsu Kaisen 0",
-    "releaseDate": "2021-01-01T00:00:00.000Z",
+    "releaseDate": "03/18/2022",
     "genre": "Action",
     "actors": [
       {
@@ -15,11 +15,12 @@
         "actorName": "Yuichi Nakamura",
         "characterName": "Satoru Gojo"
       }
-    ]
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/7/77/Gekij%C5%8D-ban_Jujutsu_Kaisen_0.png"
   },
   {
     "title": "Kill Bill: Vol. 1",
-    "releaseDate": "2003-01-01T00:00:00.000Z",
+    "releaseDate": "10 10 2003",
     "genre": "Action",
     "actors": [
       {
@@ -34,12 +35,13 @@
         "actorName": "David Carradine",
         "characterName": "Bill"
       }
-    ]
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/2/2c/Kill_Bill_Volume_1.png"
   },
   {
     "title": "John Wick",
-    "releaseDate": "2014-01-01T00:00:00.000Z",
-    "genre": "Action, Thriller",
+    "releaseDate": "10 24 2014",
+    "genre": "Action",
     "actors": [
       {
         "actorName": "Keanu Reeves",
@@ -53,11 +55,12 @@
         "actorName": "Alfie Allen",
         "characterName": "Iosef Tarasov"
       }
-    ]
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/thumb/9/98/John_Wick_TeaserPoster.jpg/220px-John_Wick_TeaserPoster.jpg"
   },
   {
     "title": "The Menu",
-    "releaseDate": "2022-01-01T00:00:00.000Z",
+    "releaseDate": "11 18 2022",
     "genre": "Thriller",
     "actors": [
       {
@@ -72,11 +75,12 @@
         "actorName": "Ralph Fiennes",
         "characterName": "Chef Slowik"
       }
-    ]
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/d/db/The_Menu_%282022_film%29.jpg"
   },
   {
     "title": "Shutter Island",
-    "releaseDate": "2022-01-01T00:00:00.000Z",
+    "releaseDate": "02 19 2010",
     "genre": "Mystery",
     "actors": [
       {
@@ -91,11 +95,12 @@
         "actorName": "Ben Kingsley",
         "characterName": "Dr. John Cawley"
       }
-    ]
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/7/76/Shutterislandposter.jpg"
   },
   {
     "title": "Pirates of the Caribbean: On Stranger Tides",
-    "releaseDate": "2011-01-01T00:00:00.000Z",
+    "releaseDate": "05 7 2011",
     "genre": "Adventure",
     "actors": [
       {
@@ -110,12 +115,13 @@
         "actorName": "Ian McShane",
         "characterName": "Blackbeard"
       }
-    ]
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/5/5e/Pirates_of_the_Caribbean_-_On_Stranger_Tides.png"
   },
   {
     "title": "Star Wars: Episode III - Revenge of the Sith",
-    "releaseDate": "2005-01-01T00:00:00.000Z",
-    "genre": "Science Fiction, Fantasy",
+    "releaseDate": "05 19 2005",
+    "genre": "Science Fiction",
     "actors": [
       {
         "actorName": "Ewan McGregor",
@@ -129,12 +135,13 @@
         "actorName": "Natalie Portman",
         "characterName": "Padmé Amidala"
       }
-    ]
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/9/93/Star_Wars_Episode_III_Revenge_of_the_Sith_poster.jpg"
   },
   {
     "title": "Bill and Ted's Excellent Adventure",
-    "releaseDate": "1989-01-01T00:00:00.000Z",
-    "genre": "Comedy, Science Fiction",
+    "releaseDate": "02 17 1989",
+    "genre": "Comedy",
     "actors": [
       {
         "actorName": "Keanu Reeves",
@@ -148,11 +155,12 @@
         "actorName": "George Carlin",
         "characterName": "Rufus"
       }
-    ]
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/thumb/b/bc/Bill_%26_Ted.jpg/220px-Bill_%26_Ted.jpg"
   },
   {
     "title": "Wayne's World",
-    "releaseDate": "1992-01-01T00:00:00.000Z",
+    "releaseDate": "02 14 1992",
     "genre": "Comedy",
     "actors": [
       {
@@ -167,11 +175,12 @@
         "actorName": "Rob Lowe",
         "characterName": "Benjamin Kane"
       }
-    ]
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/e/e0/Wayne%27s_World.jpg"
   },
   {
     "title": "Midsommar",
-    "releaseDate": "2019-01-01T00:00:00.000Z",
+    "releaseDate": "07 3 2019",
     "genre": "Horror",
     "actors": [
       {
@@ -186,11 +195,12 @@
         "actorName": "William Jackson Harper",
         "characterName": "Josh"
       }
-    ]
+    ],
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/en/4/47/Midsommar_%282019_film_poster%29.png"
   },
   {
       "title": "Alice in Wonderland",
-      "releaseDate": "2010-01-01T00:00:00.000Z",
+      "releaseDate": "03 5 2010",
       "genre": "Fantasy",
       "actors": [
         {
@@ -205,5 +215,6 @@
           "actorName": "Helena Bonham Carter",
           "characterName": "Red Queen"
         }
-      ]
+      ],
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/en/3/36/Alice_in_Wonderland_%282010_film%29.png"
     }]
